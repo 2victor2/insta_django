@@ -17,13 +17,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict) -> User:
         user = User.objects.create_user(**validated_data)
-        
+
         return user
 
     def update(self, instance: User, validated_data: dict) -> User:
-
-        if validated_data.get("password"):
-            password = validated_data.pop("password")
 
         if validated_data.get("email") == instance.email:
             validated_data.pop("email")
@@ -34,7 +31,8 @@ class UserSerializer(serializers.ModelSerializer):
         for key, value in validated_data.items():
             setattr(instance, key, value)
 
-        if password:
+        if validated_data.get("password"):
+            password = validated_data.pop("password")
             instance.set_password(password)
 
         instance.save()
