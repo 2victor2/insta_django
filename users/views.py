@@ -1,5 +1,5 @@
 from rest_framework.permissions import IsAuthenticated
-from users.serializers import UserSerializer
+from .serializers import UserSerializer
 from rest_framework import generics
 from .models import User
 
@@ -32,4 +32,8 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
 
     def get_object(self):
+        """
+        Restricts the user object to the authenticated user,
+        selecting from the user objects the request user object.
+        """
         return User.objects.get(email=self.request.user)
