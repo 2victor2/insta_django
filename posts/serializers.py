@@ -1,14 +1,14 @@
+from utils.file_management import get_thumbnail, resize_image, subclip_video
 from insta_django.exceptions import NotAllowedMimetypeException
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
-from utils.file_management import resize_image, subclip_video
 from rest_framework import serializers
 from post_medias.models import PostMedia
 from django.conf import settings
 from tags.models import Tag
 from .models import Post
-import cv2
+import shutil
 import os
 
 
@@ -37,26 +37,38 @@ class PostSerializer(serializers.ModelSerializer):
             filename = media.name
             path = default_storage.save(filename, ContentFile(media.read()))
             tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+            print("path", tmp_file)
 
             mimetype = media.content_type
             if mimetype not in ALLOWED_MIMETYPES:
                 raise NotAllowedMimetypeException()
 
             if mimetype[0:5] == "image":
-                post_image = resize_image(tmp_file)
-                _, buf = cv2.imencode(".jpg", post_image)
-                cv2.destroyAllWindows()
+                image_content = resize_image(tmp_file)
 
-                image_content = ContentFile(buf.tobytes())
-                print("IMAGE CONTENT", image_content)
-
-                validated_medias.append(image_content)
+                image_thumb = get_thumbnail(tmp_file)
+                validated_medias.append(
+                    {
+                        "raw_content": image_content,
+                        "raw_thumbnail": image_thumb,
+                        "mimetype": mimetype,
+                    }
+                )
 
             if mimetype[0:5] == "video":
-                post_vine = subclip_video(tmp_file)
-                _, frame = post_vine.read()
-                video_content = ContentFile(frame.tobytes())
-                print("VIDEO CONTENT", video_content)
+                video_content, video_thumb = subclip_video(tmp_file)
+
+                validated_medias.append(
+                    {
+                        "raw_content": video_content,
+                        "raw_thumbnail": video_thumb,
+                        "mimetype": mimetype,
+                    }
+                )
+
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        return validated_medias
 
     class Meta:
         model = Post
@@ -74,15 +86,19 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data: dict) -> Post:
 
         medias = validated_data.pop("medias")
-        print("VALIDATED MEDIAS", medias)
         tags = validated_data.pop("tags")
         post = Post.objects.create(**validated_data)
+        for media in medias:
+            content, thumb, mimetype = media.values()
+            PostMedia.objects.create(
+                mimetype=mimetype, thumbnail=thumb, media=content, post=post
+            )
 
         for tag in tags:
             post_tag = get_object_or_404(Tag, name=tag)
             post.tags.add(post_tag)
 
-        # return post
+        return post
 
     def update(self, instance: Post, validated_data: dict) -> Post:
 
