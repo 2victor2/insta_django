@@ -1,14 +1,14 @@
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from insta_django.exceptions import NotAllowedMimetypeException
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
+from utils.file_management import resize_image, subclip_video
 from rest_framework import serializers
+from post_medias.models import PostMedia
 from django.conf import settings
 from tags.models import Tag
 from .models import Post
-from io import BytesIO
-from PIL import Image
+import cv2
 import os
 
 
@@ -22,6 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def validate_medias(self, medias):
         print("self medias", medias)
+        validated_medias = []
         ALLOWED_MIMETYPES = [
             "image/jpg",
             "image/jpeg",
@@ -31,6 +32,7 @@ class PostSerializer(serializers.ModelSerializer):
             "video/avi",
             "video/mp4",
         ]
+
         for media in medias:
             filename = media.name
             path = default_storage.save(filename, ContentFile(media.read()))
@@ -41,9 +43,20 @@ class PostSerializer(serializers.ModelSerializer):
                 raise NotAllowedMimetypeException()
 
             if mimetype[0:5] == "image":
-                self.image_resize(tmp_file)
+                post_image = resize_image(tmp_file)
+                _, buf = cv2.imencode(".jpg", post_image)
+                cv2.destroyAllWindows()
+
+                image_content = ContentFile(buf.tobytes())
+                print("IMAGE CONTENT", image_content)
+
+                validated_medias.append(image_content)
+
             if mimetype[0:5] == "video":
-                self.clip_video(tmp_file)
+                post_vine = subclip_video(tmp_file)
+                _, frame = post_vine.read()
+                video_content = ContentFile(frame.tobytes())
+                print("VIDEO CONTENT", video_content)
 
     class Meta:
         model = Post
@@ -61,6 +74,7 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data: dict) -> Post:
 
         medias = validated_data.pop("medias")
+        print("VALIDATED MEDIAS", medias)
         tags = validated_data.pop("tags")
         post = Post.objects.create(**validated_data)
 
@@ -89,19 +103,3 @@ class PostSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
-    @classmethod
-    def image_resize(self, image):
-        img_io = BytesIO()
-        img = Image.open(image)
-
-        print("IMAGE SIZE", img.size)
-
-    @classmethod
-    def get_thumbnail(self, media, mimetype):
-        pass
-
-    @classmethod
-    def clip_video(self, video):
-        media_vine = ffmpeg_extract_subclip(video, 0, 10)
-        print("MEDIA_VINE", media_vine)
