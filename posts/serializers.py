@@ -21,7 +21,7 @@ class PostSerializer(serializers.ModelSerializer):
             max_length=100000, allow_empty_file=False, use_url=False
         ),
         write_only=True,
-        )
+    )
     post_tags = serializers.ListField(
         child=serializers.CharField(max_length=50), write_only=True
     )
@@ -32,10 +32,10 @@ class PostSerializer(serializers.ModelSerializer):
             "image/jpg",
             "image/jpeg",
             "image/png",
-            "video/mkv",
-            "video/mov",
-            "video/avi",
-            "video/mp4",
+            # "video/mkv",
+            # "video/mov",
+            # "video/avi",
+            # "video/mp4",
         ]
 
         for media in medias:
@@ -58,18 +58,16 @@ class PostSerializer(serializers.ModelSerializer):
                     }
                 )
 
-            if mimetype[0:5] == "video":
-                video_content, video_thumb = subclip_video(tmp_file)
+            # if media.content_type[0:5] == "video":
+            #     video_content, video_thumb, mimetype = subclip_video(tmp_file)
 
-                validated_medias.append(
-                    {
-                        "raw_content": video_content,
-                        "raw_thumbnail": video_thumb,
-                        "mimetype": mimetype,
-                    }
-                )
-
-            shutil.rmtree(settings.MEDIA_ROOT)
+            #     validated_medias.append(
+            #         {
+            #             "raw_content": video_content,
+            #             "raw_thumbnail": video_thumb,
+            #             "mimetype": mimetype,
+            #         }
+            #     )
 
         return validated_medias
 
