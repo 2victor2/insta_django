@@ -1,27 +1,32 @@
 from utils.file_management import get_thumbnail, resize_image, subclip_video
 from insta_django.exceptions import NotAllowedMimetypeException
+from post_medias.serializers import PostMediaSerializer
 from django.core.files.storage import default_storage
+from tags.serializers import TagNameSerializer
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
 from post_medias.models import PostMedia
+from rest_framework import serializers
 from django.conf import settings
 from tags.models import Tag
 from .models import Post
-import shutil
 import os
 
 
 class PostSerializer(serializers.ModelSerializer):
-    medias = serializers.ListField(
+    medias = PostMediaSerializer(many=True, read_only=True)
+    tags = TagNameSerializer(many=True, read_only=True)
+    post_medias = serializers.ListField(
         child=serializers.FileField(
             max_length=100000, allow_empty_file=False, use_url=False
+        ),
+        write_only=True,
         )
+    post_tags = serializers.ListField(
+        child=serializers.CharField(max_length=50), write_only=True
     )
-    tags = serializers.ListField(child=serializers.CharField(max_length=50))
 
-    def validate_medias(self, medias):
-        print("self medias", medias)
+    def validate_post_medias(self, medias):
         validated_medias = []
         ALLOWED_MIMETYPES = [
             "image/jpg",
@@ -37,14 +42,12 @@ class PostSerializer(serializers.ModelSerializer):
             filename = media.name
             path = default_storage.save(filename, ContentFile(media.read()))
             tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-            print("path", tmp_file)
 
-            mimetype = media.content_type
-            if mimetype not in ALLOWED_MIMETYPES:
+            if media.content_type not in ALLOWED_MIMETYPES:
                 raise NotAllowedMimetypeException()
 
-            if mimetype[0:5] == "image":
-                image_content = resize_image(tmp_file)
+            if media.content_type[0:5] == "image":
+                image_content, mimetype = resize_image(tmp_file)
 
                 image_thumb = get_thumbnail(tmp_file)
                 validated_medias.append(
@@ -75,18 +78,26 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "description",
+            "post_tags",
+            "post_medias",
             "tags",
             "medias",
             "owner",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["owner", "created_at", "updated_at"]
+        read_only_fields = [
+            "owner",
+            "created_at",
+            "updated_at",
+            "tags",
+            "medias",
+        ]
 
     def create(self, validated_data: dict) -> Post:
 
-        medias = validated_data.pop("medias")
-        tags = validated_data.pop("tags")
+        medias = validated_data.pop("post_medias")
+        tags = validated_data.pop("post_tags")
         post = Post.objects.create(**validated_data)
         for media in medias:
             content, thumb, mimetype = media.values()
