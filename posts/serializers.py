@@ -69,6 +69,8 @@ class PostSerializer(serializers.ModelSerializer):
             #         }
             #     )
 
+            os.remove(tmp_file)
+
         return validated_medias
 
     class Meta:
