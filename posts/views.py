@@ -20,8 +20,10 @@ class ListCreatePostView(generics.ListCreateAPIView):
         serializer.save(owner=owner)
 
     def get_queryset(self):
-        return self.queryset.filter(owner__private_profile=False).order_by(
-            "-created_at"
+        return (
+            self.queryset.filter(owner__private_profile=False)
+            .order_by("-created_at")
+            .distinct()
         )
 
 
