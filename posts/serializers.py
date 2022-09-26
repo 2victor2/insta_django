@@ -116,13 +116,21 @@ class PostSerializer(serializers.ModelSerializer):
         if validated_data.get("description") == instance.description:
             validated_data.pop("description")
 
-        if validated_data.get("tags"):
-            tags = validated_data.pop("tags")
+        if validated_data.get("post_tags"):
+            tags = validated_data.pop("post_tags")
             instance.tags.remove(*instance.tags.all())
             for tag in tags:
-                tag_name = tag["name"]
-                post_tag = get_object_or_404(Tag, name=tag_name)
+                post_tag = get_object_or_404(Tag, name=tag)
                 instance.tags.add(post_tag)
+
+        if validated_data.get("post_medias"):
+            medias = validated_data.pop("post_medias")
+            PostMedia.objects.filter(post=instance).delete()
+            for media in medias:
+                content, thumb, mimetype = media.values()
+                PostMedia.objects.create(
+                    mimetype=mimetype, thumbnail=thumb, media=content, post=instance
+                )
 
         for key, value in validated_data.items():
             setattr(instance, key, value)
