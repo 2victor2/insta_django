@@ -13,7 +13,6 @@ services:
   migration:
     build: .
     env_file: .env
-    restart: always
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py migrate'
     volumes:
       - .:/app
