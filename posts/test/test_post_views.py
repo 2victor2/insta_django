@@ -101,6 +101,44 @@ class TestPostView(APITestCase, APIRequestFactory):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_should_not_create_post_with_more_than_10_tags(self):
+        response_login = self.client.post(
+            "/user/login/", {"email": self.user_email, "password": self.user_pwd}
+        )
+        token = response_login.data["access"]
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
+        response = self.client.post(
+            "/post/",
+            {
+                "post_tags": [
+                    "Test",
+                    "Send",
+                    "More",
+                    "Than",
+                    "10",
+                    "Tags",
+                    "In",
+                    "Post",
+                    "Creation",
+                    "Tag10",
+                    "Tag11",
+                ],
+                "description": "fun post",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.post(
+            "/post/",
+            {
+                "post_tags": [],
+                "description": "fun post",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_should_not_create_post_without_token(self):
         media = open("./posts/test/test.jpeg", "rb")
         response = self.client.post(
@@ -272,7 +310,7 @@ class TestPostView(APITestCase, APIRequestFactory):
         response_update = self.client.patch(
             f"/post/{post_id}/",
             {
-                "post_tags": "", # Request factory auto removes the field if it is empty array
+                "post_tags": "",  # Request factory auto removes the field if it is empty array
                 "description": "fun post with two medias",
             },
         )

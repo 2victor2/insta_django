@@ -1,11 +1,14 @@
 from utils.file_management import get_thumbnail, resize_image, subclip_video
-from insta_django.exceptions import NotAllowedMimetypeException
 from post_medias.serializers import PostMediaSerializer
 from django.core.files.storage import default_storage
 from tags.serializers import TagNameSerializer
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from post_medias.models import PostMedia
+from insta_django.exceptions import (
+    NotAllowedMimetypeException,
+    NotAllowedMoreThan10TagsException,
+)
 from rest_framework import serializers
 from django.conf import settings
 from tags.models import Tag
@@ -25,6 +28,12 @@ class PostSerializer(serializers.ModelSerializer):
     post_tags = serializers.ListField(
         child=serializers.CharField(max_length=50), write_only=True
     )
+
+    def validate_post_tags(self, tags):
+        if len(tags) > 10:
+            raise NotAllowedMoreThan10TagsException()
+
+        return tags
 
     def validate_post_medias(self, medias):
         validated_medias = []
