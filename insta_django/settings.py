@@ -14,6 +14,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from pathlib import Path
 import django_on_heroku
+import dj_database_url
 import os
 
 load_dotenv()
@@ -102,6 +103,14 @@ DATABASES = {
         "PORT": 5432,
     }
 }
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    db_from_env = dj_database_url.config(
+        default=DATABASE_URL, conn_max_age=500, ssl_require=True
+    )
+    DATABASES["default"].update(db_from_env)
 
 
 # Password validation
