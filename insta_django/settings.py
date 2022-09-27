@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from datetime import timedelta
 from dotenv import load_dotenv
 from pathlib import Path
+import django_on_heroku
 import os
 
 load_dotenv()
@@ -169,3 +170,5 @@ SIMPLE_JWT = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+django_on_heroku.settings(locals())
