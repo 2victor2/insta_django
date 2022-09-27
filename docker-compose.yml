@@ -4,6 +4,7 @@ services:
   db:
     image: postgres:latest
     env_file: .env
+    restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
@@ -12,6 +13,7 @@ services:
   migration:
     build: .
     env_file: .env
+    restart: always
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py migrate'
     volumes:
       - .:/app
@@ -20,6 +22,7 @@ services:
 
   api:
     build: .
+    restart: always
     env_file: .env
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8000'
     volumes:
