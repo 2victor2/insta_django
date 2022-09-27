@@ -140,3 +140,7 @@ dmypy.json
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+### Obsidian ###
+# config dir
+.obsidian/
