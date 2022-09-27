@@ -24,7 +24,7 @@ This API has features such as:
 
 For more details about the routes see the documentation and it is highly recommended to also see the Insomnia Collection, which contains more details about the request and response bodies with the possibility to test the routes. Insomnia Collection link below will lead you to raw of the original insomnia_collection.json file, you can just copy the content and paste in Insomnia import collection section or download the file and load it in Insomnia.
 
-<a href=https://ec2-15-228-242-73.sa-east-1.compute.amazonaws.com/api/docs/ target=_blank> Redoc Documentation </a> 
+Redoc Documentation -> https://ec2-15-228-242-73.sa-east-1.compute.amazonaws.com/api/docs/
 
 Insomnia Collection -> [insomnia_collection.json](./insomnia_collection.json)
 
