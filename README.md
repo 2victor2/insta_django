@@ -84,4 +84,4 @@ Now in bash of the container you can execute `python manage.py test` to run all 
 <img src="./tests_example.png" alt="Run tests cli example"/>
 
 
-                                               made with ❤️ by 2victor2
+                                              made with ❤️ by 2victor2
