@@ -3,38 +3,30 @@
 An API to serve a social network developed in django aiming improve skills and knowledges about the framework and tools about image manipulation in python. 
 
 This API has features such as: 
-
-- Users: 
-
-- Register 
-
-- Authentication with JWT 
-
-- Update, List and Delete own profile 
-
-- List other users with optional filter by name 
-
-- Tags: 
-
-- Create tags 
-
-- List tags with optional filter by name 
-
-- Posts: 
-
-- Create new post associating with existing tags and sending images 
-
-- Update and Delete posts by id (must be owner) 
-
-- List posts with optional filters such as by mimetype, tag name and upload date range
+<ul>
+<h4>Users:</h4>
+  <li>Register</li>
+  <li>Authentication with JWT</li>
+  <li>Update, List and Delete own profile</li>
+  <li>List other users with optional filter by name</li>
+</ul>
+<ul>
+<h4>Posts:</h4>
+  <li>Create new post associating with existing tags and sending images</li>
+  <li>Update and Delete posts by id (must be owner)</li>
+  <li>List posts with optional filters such as by mimetype, tag name and upload date range</li>
+</ul>
+<ul>
+<h4>Tags:</h4>
+  <li>Create tags</li>
+  <li>List tags with optional filter by name</li>
+</ul>
 
 For more details about the routes see the documentation and it is highly recommended to also see the Insomnia Collection, which contains more details about the request and response bodies with the possibility to test the routes.
 
 [Redoc Documentation](ec2-15-228-242-73.sa-east-1.compute.amazonaws.com/api/docs/) 
 
-Insomnia Collection -> 
-
-[insomnia_collection.json](README%20feb958f410dc4954891d2ec7cd70d4cc/insomnia_collection.json)
+Insomnia Collection -> [insomnia_collection.json](./insomnia_collection.json)
 
 Technologies:
 
@@ -51,7 +43,7 @@ Technologies:
 
 ### ERD (Entity Relationship Diagram):
 
-![insta_django.der.png](README%20feb958f410dc4954891d2ec7cd70d4cc/insta_django.der.png)
+<img src="./insta_django.der.png" alt="Run tests cli example"/>
 
 ### Running and Testing the API:
 
@@ -79,7 +71,7 @@ To test the API you’ll need execute a new terminal with our compose running, s
 > docker container ls
 ```
 
-![list_container_example.png](README%20feb958f410dc4954891d2ec7cd70d4cc/list_container_example.png)
+<img src="./list_container_example.png" alt="Run tests cli example"/>
 
 Here the `-a` option makes this command list also sleeping containers, but what matters is the container id (first column) of the container with the image (second column) corresponding to our `insta_django-api`. With container id you can execute:
 
@@ -89,6 +81,7 @@ Here the `-a` option makes this command list also sleeping containers, but what 
 
 Now in bash of the container you can execute `python manage.py test` to run all the 31 integration tests, but if you want a more accurate approach you can execute `python manage.py test appFolder/`. 
 
-![tests_example.png](README%20feb958f410dc4954891d2ec7cd70d4cc/tests_example.png)
+<img src="./tests_example.png" alt="Run tests cli example"/>
 
-                                                 made with ❤️ by 2victor2
+
+                                               made with ❤️ by 2victor2
