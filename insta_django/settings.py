@@ -104,7 +104,7 @@ DATABASES = {
     }
 }
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
     db_from_env = dj_database_url.config(
@@ -179,5 +179,3 @@ SIMPLE_JWT = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-django_on_heroku.settings(locals())
